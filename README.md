@@ -1,7 +1,7 @@
 ﻿# AI 分析包：回归脚本接口故障说明
 
 ## 1. 症状概述
-- `python tools/verify_stageA.py`：在 `enqueue_generates` 阶段出现 `[HTTP] /v1/generate timeout`，随后 `/v1/runTests` 同样 timeout，脚本输出 “No tasks enqueued, skipping completion check”。终端日志显示 `POST /v1/generate` 被触发但服务端迟迟无响应。
+- `python tools/verify_stageA.py`：在 `enqueue_generates` 阶段出现 `[HTTP] /v1/generate timeout`，随后 `/v1/runTests` 同样 timeout，脚本输出 "No tasks enqueued, skipping completion check"。终端日志显示 `POST /v1/generate` 被触发但服务端迟迟无响应。
 - `python tools/verify_stage6.py`：能够成功获取 token 与 diagnostics，但在触发 `/v1/runTests` 或历史日志下载时抛出 `HTTPConnectionPool(host='127.0.0.1', port=4317): Read timed out`。
 - `python tools/verify_stage7.py`：`/v1/apply/batch` 接口返回 `HASH_MISMATCH`，差异 diff 中显示服务器认为 `tools/verify_stage7_target.txt/_2.txt` 的内容被修改，即便重新还原也同样失败。
 
@@ -9,7 +9,7 @@
 
 ## 2. 历史时间线（摘自 docs/stage9_checklist_zh.md）
 - **2025-11-23**：第一次记录 StageA/Stage6 timeout、Stage7 HASH_MISMATCH，之后每次回归都延续该问题。
-- **2025-11-24**：MainController/DownloadController 拆分继续推进，但回归仍因上述接口失败而被标记为“待后端修复”。
+- **2025-11-24**：MainController/DownloadController 拆分继续推进，但回归仍因上述接口失败而被标记为"待后端修复"。
 - **2025-11-25**：DownloadController 已接入 `DownloadTaskManager/DownloadCoordinator`，GUI 可以正常启动；但所有需要 `/v1/generate`、`/v1/apply/batch` 的脚本依旧失败。
 
 ## 3. 相关代码与脚本（已复制到本目录）
@@ -47,4 +47,4 @@
 2. 查看服务端日志（`logs/logic_api.log`）中与这些请求对应的栈信息，确认是卡在外部调用，还是直接抛出异常导致 401/timeout。
 3. 修复后重新运行 `verify_stageA/verify_stage6/verify_stage7`，并把结果同步到 `docs/stage9_checklist_zh.md` 与移交流程。
 
-> 本目录即“AI 分析包”，供其他 AI 或接手者直接查看相关代码与脚本，减少在巨大仓库中定位文件的时间。
+> 本目录即"AI 分析包"，供其他 AI 或接手者直接查看相关代码与脚本，减少在巨大仓库中定位文件的时间。
